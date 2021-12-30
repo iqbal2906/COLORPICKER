@@ -11,10 +11,23 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
   style,
 }) => {
   return (
-    <LinearGradient colors={colors} start={start} end={end} style={style} />
+    <View style={{ justifyContent: "center" }}>
+      <LinearGradient colors={colors} start={start} end={end} style={style} />
+      <View style={styles.picker} />
+    </View>
   );
 };
 
-const styles = StyleSheet.create({});
+const CIRCLE_PICKER_SIZE = 45;
+
+const styles = StyleSheet.create({
+  picker: {
+    position: "absolute",
+    backgroundColor: "#fff",
+    width: CIRCLE_PICKER_SIZE,
+    height: CIRCLE_PICKER_SIZE,
+    borderRadius: CIRCLE_PICKER_SIZE / 2,
+  },
+});
 
 export { ColorPicker };
