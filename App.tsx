@@ -29,6 +29,7 @@ export default function App() {
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={styles.gradient}
+          maxWidth={PICKER_WIDTH}
         />
       </View>
     </>
@@ -41,7 +42,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   bottomContainer: {
-    flex: 1,
+    flex: 1,  
     backgroundColor: BACKGROUND_COLOR,
     alignItems: "center",
     justifyContent: "center",
