@@ -1,5 +1,5 @@
 import { LinearGradient, LinearGradientProps } from "expo-linear-gradient";
-import React from "react";
+import React, { useCallback } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import {
   GestureHandlerRootView,
@@ -42,23 +42,23 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
     );
   });
 
+  const onEnd = useCallback(() => {
+    'worklet'
+    translateY.value = withSpring(0);
+    scale.value = withSpring(1);
+  }, [])
+
   const panGestureEvent = useAnimatedGestureHandler<
     PanGestureHandlerGestureEvent,
     { x: number }
   >({
     onStart: (_, context) => {
       context.x = adjustedTraslateX.value;
-
-      translateY.value = withSpring(-CIRCLE_PICKER_SIZE);
-      scale.value = withSpring(1.2);
     },
     onActive: (event, context) => {
       translateX.value = event.translationX + context.x;
     },
-    onEnd: () => {
-      translateY.value = withSpring(0);
-      scale.value = withSpring(1);
-    },
+    onEnd
   });
 
   const tapGestureEvent = useAnimatedGestureHandler<TapGestureHandlerGestureEvent>({
@@ -67,10 +67,7 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
       scale.value = withSpring(1.2);
       translateX.value = withTiming(event.absoluteX - CIRCLE_PICKER_SIZE)
     },
-    onEnd: () => {
-      translateY.value = withSpring(0);
-      scale.value = withSpring(1);
-    }
+    onEnd
   })
 
   const rStyle = useAnimatedStyle(() => {
