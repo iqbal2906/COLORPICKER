@@ -7,6 +7,7 @@ import {
   PanGestureHandlerGestureEvent,
 } from "react-native-gesture-handler";
 import Animated, {
+  interpolateColor,
   useAnimatedGestureHandler,
   useAnimatedStyle,
   useDerivedValue,
@@ -65,6 +66,21 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
     };
   });
 
+  const rInternalPickerStyle = useAnimatedStyle(() => {
+    
+    const inputRange = colors.map((_, index) => (index / colors.length)*maxWidth)
+
+    const backgroundColor = interpolateColor(
+      translateX.value,
+      inputRange,
+      colors
+    );
+
+    return {
+      backgroundColor,
+    };
+  });
+
   return (
     <GestureHandlerRootView>
       <PanGestureHandler onGestureEvent={panGestureEvent}>
@@ -75,7 +91,11 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
             end={end}
             style={style}
           />
-          <Animated.View style={[styles.picker, rStyle]} />
+          <Animated.View style={[styles.picker, rStyle]}>
+            <Animated.View
+              style={[styles.internalPicker, rInternalPickerStyle]}
+            />
+          </Animated.View>
         </Animated.View>
       </PanGestureHandler>
     </GestureHandlerRootView>
@@ -83,6 +103,7 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
 };
 
 const CIRCLE_PICKER_SIZE = 45;
+const INTERNAL_PICKER_SIZE = CIRCLE_PICKER_SIZE / 2;
 
 const styles = StyleSheet.create({
   picker: {
@@ -91,6 +112,15 @@ const styles = StyleSheet.create({
     width: CIRCLE_PICKER_SIZE,
     height: CIRCLE_PICKER_SIZE,
     borderRadius: CIRCLE_PICKER_SIZE / 2,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  internalPicker: {
+    width: INTERNAL_PICKER_SIZE,
+    height: INTERNAL_PICKER_SIZE,
+    borderRadius: INTERNAL_PICKER_SIZE / 2,
+    borderWidth: 1.0,
+    borderColor: "rgba(0,0,0,0.2)",
   },
 });
 
