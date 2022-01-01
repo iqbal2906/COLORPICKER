@@ -5,6 +5,8 @@ import {
   GestureHandlerRootView,
   PanGestureHandler,
   PanGestureHandlerGestureEvent,
+  TapGestureHandler,
+  TapGestureHandlerGestureEvent,
 } from "react-native-gesture-handler";
 import Animated, {
   interpolateColor,
@@ -13,10 +15,12 @@ import Animated, {
   useDerivedValue,
   useSharedValue,
   withSpring,
+  withTiming,
 } from "react-native-reanimated";
 
 interface ColorPickerProps extends LinearGradientProps {
   maxWidth: number;
+  onColorChanged?: (color: string | number) => void;
 }
 
 const ColorPicker: React.FC<ColorPickerProps> = ({
@@ -25,6 +29,7 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
   end,
   style,
   maxWidth,
+  onColorChanged,
 }) => {
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
@@ -56,6 +61,18 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
     },
   });
 
+  const tapGestureEvent = useAnimatedGestureHandler<TapGestureHandlerGestureEvent>({
+    onStart: (event) => {
+      translateY.value = withSpring(-CIRCLE_PICKER_SIZE);
+      scale.value = withSpring(1.2);
+      translateX.value = withTiming(event.absoluteX - CIRCLE_PICKER_SIZE)
+    },
+    onEnd: () => {
+      translateY.value = withSpring(0);
+      scale.value = withSpring(1);
+    }
+  })
+
   const rStyle = useAnimatedStyle(() => {
     return {
       transform: [
@@ -67,14 +84,17 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
   });
 
   const rInternalPickerStyle = useAnimatedStyle(() => {
-    
-    const inputRange = colors.map((_, index) => (index / colors.length)*maxWidth)
+    const inputRange = colors.map(
+      (_, index) => (index / colors.length) * maxWidth
+    );
 
     const backgroundColor = interpolateColor(
       translateX.value,
       inputRange,
       colors
     );
+
+    onColorChanged?.(backgroundColor);
 
     return {
       backgroundColor,
@@ -83,21 +103,25 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
 
   return (
     <GestureHandlerRootView>
-      <PanGestureHandler onGestureEvent={panGestureEvent}>
-        <Animated.View style={{ justifyContent: "center" }}>
-          <LinearGradient
-            colors={colors}
-            start={start}
-            end={end}
-            style={style}
-          />
-          <Animated.View style={[styles.picker, rStyle]}>
-            <Animated.View
-              style={[styles.internalPicker, rInternalPickerStyle]}
-            />
-          </Animated.View>
+      <TapGestureHandler onGestureEvent={tapGestureEvent}>
+        <Animated.View>
+          <PanGestureHandler onGestureEvent={panGestureEvent}>
+            <Animated.View style={{ justifyContent: "center" }}>
+              <LinearGradient
+                colors={colors}
+                start={start}
+                end={end}
+                style={style}
+              />
+              <Animated.View style={[styles.picker, rStyle]}>
+                <Animated.View
+                  style={[styles.internalPicker, rInternalPickerStyle]}
+                />
+              </Animated.View>
+            </Animated.View>
+          </PanGestureHandler>
         </Animated.View>
-      </PanGestureHandler>
+      </TapGestureHandler>
     </GestureHandlerRootView>
   );
 };
